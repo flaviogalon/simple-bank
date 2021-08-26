@@ -24,6 +24,12 @@ test('getBalance should return balance for given accountID', async () => {
     expect(balance).toEqual(initialBalance);
 });
 
+test('getBalance should return undefined if account does not exist', async () => {
+    const balance = await accountData.getBalance('666');
+
+    expect(balance).toEqual(undefined);
+});
+
 test('setBalance should modify an account balance field', async () => {
     const newBalance = 1;
     const account = await accountData.setBalance(

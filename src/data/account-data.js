@@ -31,6 +31,8 @@ function createAccount(accountID, initialBalance) {
 
 function getBalance(accountID) {
     return new Promise(resolve => {
+        if (!databaseMock[accountID])
+            resolve(undefined);
         resolve(databaseMock[accountID].balance);
     });
 }
