@@ -1,5 +1,6 @@
 const eventService = require('./event-service');
 const accountData = require('../data/account-data');
+const { NonExistentAccountError } = require('../errors/errors');
 
 it('should create a new account with initial balance', async () => {
     const eventType = 'deposit';
@@ -49,4 +50,17 @@ it('should increment an account balance', async () => {
     );
 
     expect(transactionResult.destination.balance).toEqual(20);
+});
+
+it('should throw NonExistentAccountError if trying to withdraw from non existing account', async () => {
+    const eventType = eventService.supportedEvents.WITHDRAW;
+    const transactionData = { "destination":"200", "amount":10 };
+
+    jest.spyOn(accountData, 'getBalance').mockImplementationOnce((accountID) => {
+        return Promise.resolve(undefined);
+    });
+
+    await expect(eventService.handleEvent(eventType, transactionData))
+    .rejects
+    .toThrowError(NonExistentAccountError);
 });
