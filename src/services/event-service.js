@@ -27,8 +27,11 @@ async function handleDeposit(transactionData) {
     const account = await accountData.setBalance(destination, newBalance);
 
     return {
-        destination: account,
-    }
+        destination: {
+            id: account.id,
+            balance: account.balance,
+        },
+    };
 }
 
 module.exports = {
