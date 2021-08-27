@@ -6,7 +6,7 @@ const router = express.Router();
 router.post('/reset', async (req, res, next) => {
     try {
         await resetService.resetData();
-        return res.status(200).send();
+        return res.status(200).send('OK');
     } catch(err) {
         next(err);
     }
