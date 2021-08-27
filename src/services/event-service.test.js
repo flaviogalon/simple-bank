@@ -42,7 +42,7 @@ it('should increment an account balance', async () => {
         (accountID, newBalance) => {
             return Promise.resolve({
                 id: accountID,
-                balance: finalBalance,
+                balance: newBalance,
             });
         }
     );
@@ -57,7 +57,7 @@ it('should increment an account balance', async () => {
 
 it('should throw NonExistentAccountError if trying to withdraw from non existing account', async () => {
     const eventType = eventService.supportedEvents.WITHDRAW;
-    const transactionData = { "destination":"200", "amount":10 };
+    const transactionData = { "origin":"200", "amount":10 };
 
     jest.spyOn(accountData, 'getBalance').mockImplementationOnce((accountID) => {
         return Promise.resolve(undefined);
@@ -66,4 +66,29 @@ it('should throw NonExistentAccountError if trying to withdraw from non existing
     await expect(eventService.handleEvent(eventType, transactionData))
     .rejects
     .toThrowError(NonExistentAccountError);
+});
+
+it('should decrement an account balance', async () => {
+    const eventType = eventService.supportedEvents.WITHDRAW;
+    const transactionData = { "origin":"200", "amount":20 };
+    const currentBalance = 10;
+    const expectedBalance = currentBalance - transactionData.amount;
+
+    jest.spyOn(accountData, 'getBalance').mockImplementationOnce((accountID) => {
+        return Promise.resolve(currentBalance);
+    });
+
+    jest.spyOn(accountData, 'setBalance').mockImplementationOnce((accountID, amount) => {
+        return Promise.resolve({
+            id: accountID,
+            balance: amount,
+        });
+    });
+
+    const transactionResult = await eventService.handleEvent(
+        eventType,
+        transactionData
+    );
+
+    expect(transactionResult.origin.balance).toEqual(expectedBalance);
 });

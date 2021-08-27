@@ -45,6 +45,17 @@ async function handleWithDraw(transactionData) {
     if (!currentBalance) {
         throw new NonExistentAccountError();
     }
+
+    const newBalance = currentBalance - amount;
+
+    const account = await accountData.setBalance(origin, newBalance);
+
+    return {
+        origin: {
+            id: account.id,
+            balance: account.balance,
+        },
+    };
 }
 
 module.exports = {
