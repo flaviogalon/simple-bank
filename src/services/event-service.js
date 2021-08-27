@@ -68,10 +68,49 @@ async function handleTransfer(transactionData) {
     if (!originAccountCurrentBalance) {
         throw new NonExistentAccountError();
     }
+
+    const originAccountNewBalance = originAccountCurrentBalance - amount;
+
+    const originAccount = await accountData.setBalance(
+        origin,
+        originAccountNewBalance
+    );
+
+    const destinationAccountCurrentBalance = await accountData.getBalance(destination);
+
+    if (!destinationAccountCurrentBalance) {
+        const destinationAccount = await accountData.createAccount(
+            destination,
+            amount
+        );
+
+        return assembleTransferOperationResult(originAccount, destinationAccount);
+    }
+
+    const destinationAccountNewBalance = destinationAccountCurrentBalance + amount;
+
+    const destinationAccount = await accountData.setBalance(
+        destination,
+        destinationAccountNewBalance
+    );
+
+    return assembleTransferOperationResult(originAccount, destinationAccount);
+}
+
+function assembleTransferOperationResult(originAccount, destinationAccount) {
+    return {
+        origin: {
+            id: originAccount.id,
+            balance: originAccount.balance,
+        },
+        destination: {
+            id: destinationAccount.id,
+            balance: destinationAccount.balance,
+        },
+    };
 }
 
 module.exports = {
     supportedEvents,
     handleEvent,
-    handleWithDraw,
 };
