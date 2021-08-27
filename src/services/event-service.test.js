@@ -92,3 +92,21 @@ it('should decrement an account balance', async () => {
 
     expect(transactionResult.origin.balance).toEqual(expectedBalance);
 });
+
+it('should throw NonExistentAccountError if trying to transfer from non existing account', async () => {
+    const eventType = eventService.supportedEvents.TRANSFER;
+    const transactionData = {
+        type: "transfer",
+        origin: "200",
+        amount: 15,
+        destination: "300",
+    };
+
+    jest.spyOn(accountData, 'getBalance').mockImplementationOnce((accountID) => {
+        return Promise.resolve(undefined);
+    });
+
+    await expect(eventService.handleEvent(eventType, transactionData))
+    .rejects
+    .toThrowError(NonExistentAccountError);
+});

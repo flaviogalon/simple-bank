@@ -4,12 +4,14 @@ const { NonExistentAccountError } = require('../errors/errors');
 const supportedEvents = {
     DEPOSIT: 'deposit',
     WITHDRAW: 'withdraw',
+    TRANSFER: 'transfer',
 };
 
 function handleEvent(eventType, transactionData) {
     return {
         [supportedEvents.DEPOSIT]: handleDeposit,
         [supportedEvents.WITHDRAW]: handleWithDraw,
+        [supportedEvents.TRANSFER]: handleTransfer,
     } [eventType](transactionData);
 }
 
@@ -56,6 +58,16 @@ async function handleWithDraw(transactionData) {
             balance: account.balance,
         },
     };
+}
+
+async function handleTransfer(transactionData) {
+    const { origin, amount, destination } = transactionData;
+
+    const originAccountCurrentBalance = await accountData.getBalance(origin);
+
+    if (!originAccountCurrentBalance) {
+        throw new NonExistentAccountError();
+    }
 }
 
 module.exports = {
